@@ -1,0 +1,16 @@
+{application, p42_farmacia, [
+  {description, "Farmacia: inventario por lote, caducidades (FEFO) y recetas"},
+  {vsn, "0.1.0"},
+  {registered, [p42_farmacia_sup, p42_farmacia_server, p42_inventario,
+                p42_recetas_sup, p42_revisor, p42_bitacora]},
+  {mod, {p42_farmacia_app, []}},
+  {applications, [kernel, stdlib, cowboy, recon, jsx]},
+  {env, [
+    {puerto, 8080},
+    {web, true},
+    {sembrar_al_iniciar, true},
+    {productos_iniciales, 1500},
+    {intervalo_revisor_ms, 30000},
+    {dias_alerta_caducidad, 90}
+  ]}
+]}.

@@ -1,0 +1,12 @@
+-name p42_farmacia@127.0.0.1
+-setcookie cambiar_en_produccion
++S 4:4
++SDcpu 4:4
++SDio 10
++K true
++P 1048576
++Q 65536
++e 204800
++zdbbl 65536
++A 16
++hmqd off_heap

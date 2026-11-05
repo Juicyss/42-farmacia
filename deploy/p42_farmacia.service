@@ -1,0 +1,16 @@
+[Unit]
+Description=Farmacia #42 (Erlang/OTP + cowboy)
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/42-farmacia
+Environment=HOME=/home/ubuntu
+ExecStart=/home/ubuntu/42-farmacia/_build/default/rel/p42_farmacia/bin/p42_farmacia foreground
+ExecStop=/home/ubuntu/42-farmacia/_build/default/rel/p42_farmacia/bin/p42_farmacia stop
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

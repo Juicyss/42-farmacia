@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Farmacia #42 · Erlang/OTP</title>
+<style>
+  :root{--bg:#f4f6f8;--card:#fff;--tx:#18212b;--mut:#5d6b7a;--bd:#dfe4ea;--pri:#0f6e5c;--ok:#1f9d55;--al:#d98a00;--fa:#d1343b;--okb:#e6f6ec;--alb:#fff4dd;--fab:#fde8e9}
+  @media (prefers-color-scheme:dark){:root{--bg:#0f1418;--card:#182027;--tx:#e8edf1;--mut:#9aa7b3;--bd:#2a343d;--pri:#2fb497;--okb:#14321f;--alb:#3a2c0b;--fab:#3d1518}}
+  *{box-sizing:border-box}body{margin:0;font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--tx)}
+  header{background:var(--pri);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  header h1{font-size:18px;margin:0;flex:1}header small{opacity:.85}
+  .dot{width:10px;height:10px;border-radius:50%;background:#9ff0c9;display:inline-block;margin-right:6px}
+  nav{display:flex;gap:4px;padding:8px 16px;background:var(--card);border-bottom:1px solid var(--bd);overflow-x:auto}
+  nav button{border:0;background:none;padding:8px 12px;border-radius:8px;color:var(--mut);font-weight:600;cursor:pointer;white-space:nowrap}
+  nav button.on{background:var(--pri);color:#fff}
+  main{max-width:1150px;margin:0 auto;padding:16px}
+  .tab{display:none}.tab.on{display:block}
+  .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+  .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px}
+  .kpi b{display:block;font-size:26px}.kpi span{color:var(--mut);font-size:13px}
+  .kpi.ok{border-left:5px solid var(--ok)}.kpi.al{border-left:5px solid var(--al)}.kpi.fa{border-left:5px solid var(--fa)}
+  h2{font-size:16px;margin:18px 0 8px}
+  table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--bd)}th{color:var(--mut);font-weight:600}
+  .wrap{overflow-x:auto}
+  .pill{padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700}
+  .p-ok{background:var(--okb);color:var(--ok)}.p-al{background:var(--alb);color:var(--al)}.p-fa{background:var(--fab);color:var(--fa)}
+  input,select{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit}
+  label{font-size:13px;color:var(--mut);display:block;margin:8px 0 3px}
+  .btn{border:0;background:var(--pri);color:#fff;padding:10px 14px;border-radius:8px;font-weight:700;cursor:pointer;margin-top:10px}
+  .btn.fa{background:var(--fa)}.btn.al{background:var(--al)}
+  .row{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+  pre{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px;overflow:auto;max-height:420px;font-size:12.5px}
+  .ev{padding:8px 10px;border-left:4px solid var(--ok);background:var(--card);margin-bottom:6px;border-radius:6px;font-size:14px}
+  .ev.alerta{border-color:var(--al)}.ev.falla{border-color:var(--fa)}.ev time{color:var(--mut);font-size:12px;margin-right:8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>💊 Farmacia #42 <small>· inventario, caducidades y recetas</small></h1>
+  <small><span class="dot" id="vivo"></span><span id="pidinv">conectando…</span></small>
+</header>
+<nav>
+  <button class="on" data-t="tablero">Tablero</button>
+  <button data-t="recetas">Recetas</button>
+  <button data-t="detalle">Producto / Lote</button>
+  <button data-t="bitacora">Bitácora</button>
+  <button data-t="caos">Simulación y caos</button>
+</nav>
+<main>
+  <!-- 1. Dashboard -->
+  <section class="tab on" id="tablero">
+    <div class="grid" id="kpis"></div>
+    <div class="row">
+      <div><h2>Lotes próximos a caducar (FEFO)</h2><div class="card wrap"><table id="tprox"></table></div></div>
+      <div><h2>Quiebre / punto de reorden</h2><div class="card wrap"><table id="tcrit"></table></div></div>
+    </div>
+  </section>
+
+  <!-- Recetas -->
+  <section class="tab" id="recetas">
+    <div class="row">
+      <div class="card">
+        <h2 style="margin-top:0">Nueva receta</h2>
+        <label>Paciente</label><input id="rpac" value="Juan Pérez">
+        <label>Medicamento (SKU)</label>
+        <select id="rsku">
+          <option value="AMOX500">AMOX500 · Amoxicilina (antibiótico)</option>
+          <option value="LOSA50">LOSA50 · Losartán (receta, poco stock)</option>
+          <option value="WARF5">WARF5 · Warfarina (receta)</option>
+          <option value="IBU400">IBU400 · Ibuprofeno (libre)</option>
+          <option value="CLONA2">CLONA2 · Clonazepam (controlado)</option>
+          <option value="METF850">METF850 · Metformina (receta)</option>
+        </select>
+        <label>Segundo medicamento (opcional, para probar interacciones)</label>
+        <select id="rsku2"><option value="">— ninguno —</option><option value="IBU400">IBU400 · Ibuprofeno</option><option value="ASA100">ASA100 · Aspirina</option></select>
+        <label>Cantidad</label><input id="rcant" type="number" value="2" min="1">
+        <label>Alergias (separadas por coma)</label><input id="ralerg" placeholder="amoxicilina">
+        <label>Folio (solo controlados)</label><input id="rfolio" placeholder="FOLIO-001">
+        <label>Sucursal</label><input id="rsuc" value="Centro">
+        <button class="btn" onclick="crearReceta()">Emitir receta</button>
+        <pre id="rout">—</pre>
+      </div>
+      <div class="card">
+        <h2 style="margin-top:0">Surtir</h2>
+        <label>Id de receta</label><input id="sid" placeholder="R-000001">
+        <label>Mostrador</label><select id="smos"><option>1</option><option>2</option><option>3</option></select>
+        <button class="btn" onclick="surtir()">Surtir receta</button>
+        <h2>Venta libre (sin receta)</h2>
+        <label>SKU</label><input id="vsku" value="PARA500">
+        <button class="btn" onclick="ventaLibre()">Vender 1</button>
+        <pre id="sout">—</pre>
+      </div>
+    </div>
+    <h2>Últimas recetas</h2><div class="card wrap"><table id="trec"></table></div>
+  </section>
+
+  <!-- 2. Detalle -->
+  <section class="tab" id="detalle">
+    <div class="row">
+      <div class="card">
+        <h2 style="margin-top:0">Detalle de producto</h2>
+        <label>SKU</label><input id="dsku" value="PARA500">
+        <button class="btn" onclick="detalle()">Consultar</button>
+        <div id="dinfo"></div>
+      </div>
+      <div class="card">
+        <h2 style="margin-top:0">Alerta sanitaria: retirar lote</h2>
+        <label>Lote</label><input id="llote" value="L-ALERTA-01">
+        <button class="btn al" onclick="clientesLote()">¿A quién se le vendió?</button>
+        <button class="btn fa" onclick="retirar()">Retirar lote</button>
+        <h2>Devolución</h2>
+        <label>Motivo</label><select id="dmot"><option value="sin_abrir">sin abrir</option><option value="abierto">abierto</option></select>
+        <button class="btn" onclick="devolver()">Devolver 1 unidad del lote</button>
+        <pre id="lout">—</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Bitacora -->
+  <section class="tab" id="bitacora">
+    <h2 style="margin-top:0">Eventos y alertas en tiempo real (SSE)</h2>
+    <div id="eventos"></div>
+  </section>
+
+  <!-- Caos -->
+  <section class="tab" id="caos">
+    <div class="row">
+      <div class="card">
+        <h2 style="margin-top:0">Escenario del problema</h2>
+        <p>1,500 productos · 3 mostradores · 400 ventas · lote retirado con 40 vendidas · último blister disputado · fallas inyectadas.</p>
+        <button class="btn" onclick="simular()">▶ Ejecutar simulación</button>
+      </div>
+      <div class="card">
+        <h2 style="margin-top:0">Prueba de caos (let it crash)</h2>
+        <button class="btn fa" onclick="caos('inventario')">kill p42_inventario</button>
+        <button class="btn fa" onclick="caos('receta')">kill una receta</button>
+        <button class="btn fa" onclick="caos('revisor')">kill p42_revisor</button>
+        <button class="btn al" onclick="caos('doble_surtido')">Surtir misma receta 2 veces en paralelo</button>
+      </div>
+    </div>
+    <pre id="cout">—</pre>
+  </section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const api = async (url, body) => {
+  const r = await fetch(url, body === undefined ? {} : {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(body)});
+  return r.json();
+};
+const show = (id, o) => $(id).textContent = JSON.stringify(o, null, 2);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pill = (txt, k) => `<span class="pill p-${k}">${esc(txt)}</span>`;
+
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('nav button, .tab').forEach(x => x.classList.remove('on'));
+  b.classList.add('on'); $(b.dataset.t).classList.add('on');
+  if (b.dataset.t === 'recetas') recetas();
+});
+
+async function tablero(){
+  const e = await api('/api/estado');
+  const m = e.metricas || {};
+  const k = [
+    ['Productos', e.productos, 'ok'], ['Lotes', e.lotes, 'ok'], ['Unidades', e.unidades, 'ok'],
+    ['Próximos a caducar (≤'+e.dias_alerta+' d)', e.proximos_caducar_total, e.proximos_caducar_total ? 'al':'ok'],
+    ['Caducados por retirar', e.caducados_con_existencia, e.caducados_con_existencia ? 'fa':'ok'],
+    ['En reorden / quiebre', e.criticos_total, e.criticos_total ? 'al':'ok'],
+    ['Recetas surtidas', m.recetas_surtidas||0, 'ok'], ['Recetas rechazadas', m.recetas_rechazadas||0, (m.recetas_rechazadas? 'al':'ok')],
+    ['Lotes retirados', m.lotes_retirados||0, (m.lotes_retirados?'fa':'ok')]
+  ];
+  $('kpis').innerHTML = k.map(([t,v,c]) => `<div class="card kpi ${c}"><b>${v}</b><span>${t}</span></div>`).join('');
+  $('pidinv').textContent = 'inventario ' + e.pid_inventario;
+  $('tprox').innerHTML = '<tr><th>Lote</th><th>SKU</th><th>Caduca</th><th>Uds</th></tr>' + e.proximos_caducar.map(l =>
+    `<tr><td>${esc(l.lote)}</td><td>${esc(l.sku)}</td><td>${pill(l.caducidad+' ('+l.dias_restantes+'d)', l.dias_restantes<30?'fa':'al')}</td><td>${l.cantidad}</td></tr>`).join('');
+  $('tcrit').innerHTML = '<tr><th>SKU</th><th>Producto</th><th>Exist.</th><th>Reorden</th></tr>' + e.criticos.map(p =>
+    `<tr><td>${esc(p.sku)}</td><td>${esc(p.nombre)}</td><td>${pill(p.existencias, p.existencias===0?'fa':'al')}</td><td>${p.reorden}</td></tr>`).join('');
+}
+
+async function recetas(){
+  const rs = await api('/api/recetas');
+  const c = {surtida:'ok', surtida_parcial:'al', emitida:'al', vencida:'fa'};
+  $('trec').innerHTML = '<tr><th>Id</th><th>Paciente</th><th>Estado</th><th>Items</th></tr>' + rs.map(r =>
+    `<tr><td><a href="#" onclick="$('sid').value='${esc(r.id)}';return false">${esc(r.id)}</a></td><td>${esc(r.paciente)}</td><td>${pill(r.estado, c[r.estado])}</td><td>${r.items.map(i=>esc(i.sku)+' '+i.surtido+'/'+i.cantidad).join(', ')}</td></tr>`).join('');
+}
+
+async function crearReceta(){
+  const items = [{sku:$('rsku').value, cantidad:+$('rcant').value}];
+  if ($('rsku2').value) items.push({sku:$('rsku2').value, cantidad:1});
+  const body = {paciente:$('rpac').value, items, sucursal:$('rsuc').value,
+    alergias:$('ralerg').value.split(',').map(s=>s.trim()).filter(Boolean)};
+  if ($('rfolio').value) body.folio = $('rfolio').value;
+  const r = await api('/api/recetas', body); show('rout', r);
+  if (r.id) $('sid').value = r.id;
+  recetas(); tablero();
+}
+async function surtir(){ show('sout', await api('/api/recetas/'+encodeURIComponent($('sid').value)+'/surtir', {mostrador:+$('smos').value})); recetas(); tablero(); }
+async function ventaLibre(){ show('sout', await api('/api/ventas', {sku:$('vsku').value, cantidad:1, mostrador:+$('smos').value, cliente:'Mostrador'})); tablero(); }
+
+async function detalle(){
+  const p = await api('/api/productos/'+encodeURIComponent($('dsku').value));
+  if (p.error) { $('dinfo').innerHTML = pill(p.error,'fa'); return; }
+  $('dinfo').innerHTML = `<p><b>${esc(p.nombre)}</b> · ${pill(p.tipo, p.tipo==='libre'?'ok':'al')} · vendibles: <b>${p.existencias}</b> (reorden ${p.reorden})</p>
+   <div class="wrap"><table><tr><th>Lote</th><th>Caduca</th><th>Uds</th><th>Vendidas</th><th>Estado</th></tr>${p.lotes.map(l=>
+   `<tr><td><a href="#" onclick="$('llote').value='${esc(l.lote)}';return false">${esc(l.lote)}</a></td><td>${esc(l.caducidad)}</td><td>${l.cantidad}</td><td>${l.vendidas}</td><td>${
+     l.retirado ? pill('retirado','fa') : l.dias_restantes<0 ? pill('caducado','fa') : l.dias_restantes<=90 ? pill('caduca pronto','al') : pill('ok','ok')}</td></tr>`).join('')}</table></div>`;
+}
+async function clientesLote(){ show('lout', await api('/api/lotes/'+encodeURIComponent($('llote').value)+'/clientes')); }
+async function retirar(){ show('lout', await api('/api/lotes/'+encodeURIComponent($('llote').value)+'/retirar', {})); tablero(); }
+async function devolver(){ show('lout', await api('/api/devoluciones', {lote:$('llote').value, cantidad:1, motivo:$('dmot').value})); }
+
+async function simular(){ $('cout').textContent = 'Simulando…'; show('cout', await api('/api/simular', {})); tablero(); }
+async function caos(q){ show('cout', await api('/api/caos/'+q, {})); tablero(); }
+
+function evento(e){
+  const d = document.createElement('div');
+  d.className = 'ev ' + e.nivel;
+  d.innerHTML = `<time>${esc(e.ts)}</time>${esc(e.texto)}`;
+  $('eventos').prepend(d);
+  while ($('eventos').children.length > 200) $('eventos').lastChild.remove();
+}
+(async () => {
+  (await api('/api/bitacora')).reverse().forEach(evento);
+  const es = new EventSource('/api/eventos');
+  es.onmessage = m => { evento(JSON.parse(m.data)); };
+  es.onopen = () => $('vivo').style.background = '#9ff0c9';
+  es.onerror = () => $('vivo').style.background = '#ff8a8a';
+})();
+tablero(); setInterval(tablero, 5000);
+</script>
+</body>
+</html>
