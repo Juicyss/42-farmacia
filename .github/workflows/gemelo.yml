@@ -1,0 +1,49 @@
+# Pruebas del gemelo digital en Ubuntu con SWI-Prolog de la PPA (trae Janus) y matplotlib.
+name: gemelo
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  prolog:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: SWI-Prolog (PPA estable) y matplotlib
+        run: |
+          sudo apt-add-repository -y ppa:swi-prolog/stable
+          sudo apt-get update
+          sudo apt-get install -y swi-prolog python3-matplotlib
+          swipl --version
+
+      - name: Prolog ve a Python (Janus)
+        run: swipl -g "use_module(library(janus)), py_call(sys:version, V), writeln(V)" -t halt
+
+      - name: Pruebas plunit del gemelo (34)
+        working-directory: gemelo
+        run: swipl -g run_tests -t halt tests/reglas_tests.pl
+
+      - name: Gráficas con Python llamado DESDE Prolog vía Janus
+        working-directory: gemelo
+        run: >
+          swipl -g "consult(gemelo), consult(graficas), modo_python(M), format('modo_python = ~w~n', [M]),
+          M == janus, grafica_caducidades(A), grafica_recetas(B), grafica_retiro(l_omep_a, C),
+          maplist(writeln, [A, B, C])" -t halt
+
+      - name: Gemelo mínimo de la práctica 3.0
+        run: swipl -g demo -t halt practica-3.0-prolog-lab/gemelo_farmacia_minimo.pl
+
+      - name: Servidor web responde
+        working-directory: gemelo
+        run: |
+          swipl servidor.pl 8042 &
+          sleep 5
+          curl -sf "http://localhost:8042/api/decide?escenario=s31" | head -c 400; echo
+          curl -sf -o /dev/null -w "grafica %{http_code} %{content_type}\n" http://localhost:8042/grafica/caducidades
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: graficas-janus
+          path: gemelo/salida/
