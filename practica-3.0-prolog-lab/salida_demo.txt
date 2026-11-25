@@ -1,0 +1,36 @@
+
+[1] ¿Ana es alérgica al Amoxil? (el hecho dice amoxicilina, no Amoxil)
+?- alergico(ana, amoxil_500).
+true.
+
+[2] ¿Qué lotes de amoxicilina sirven para un tratamiento de 60 días?
+?- setof(L, lote_apto(amoxicilina_500, 60, L), Lotes).
+   Lotes = [l_amox_b]
+
+[3] ¿A quién avisar del lote retirado y qué ventas no tienen rastro?
+?- findall(P, por_avisar(l_omep_a, P), Avisar), findall(V, sin_rastro(l_omep_a, V), SinRastro).
+   Avisar = [ana, pedro]
+   SinRastro = [v403]
+
+[4] ¿Se le puede vender ibuprofeno a Luis?
+?- decide(luis, ibuprofeno_400, Decision, Porque).
+   Decision = no_surtir
+   Porque = [interaccion_con(warfarina_5), recibio(luis, warfarina_5, otay, 194)]
+
+[5] ¿Se le surte amoxicilina a Pedro? (su ficha de alergias nunca se capturó)
+?- decide(pedro, amoxicilina_500, Decision, Porque).
+   Decision = suspender
+   Porque = [sin_ficha_de_alergias(pedro)]
+
+[6] ¿Ya se usó la receta especial r103? («no» no es lo mismo que «no se sabe»)
+?- uso_receta(r103, Uso).
+   Uso = no_se
+
+[7] En lenguaje natural (DCG): «¿le surto amoxil_500 a ana?»
+?- pregunta_natural("¿le surto amoxil_500 a ana?", Decision, Porque).
+   Decision = no_surtir
+   Porque = [alergia(ana, amoxicilina), medicamento(amoxil_500, amoxicilina, receta)]
+
+[8] El gemelo aprende (assert/retract, nivel 12): Otay reporta que surtió r103…
+?- registrar_surtido(r103, otay), uso_receta(r103, Uso).
+   Uso = si        ← antes era no_se
