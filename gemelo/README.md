@@ -8,7 +8,7 @@ Ejercicio con datos simulados: **no es un sistema de dispensación real**.
 > En Erlang la farmacia **hace** cosas: procesos que no sobrevenden el último blíster y se recuperan si mueren.
 > En Prolog el gemelo **deduce**: ¿le surto esto a esta persona, de qué lote, y por qué? ¿Y si no sé?
 
-![El último blíster: decisión contraintuitiva y su explicación](capturas/02-s3-contraintuitivo.jpg)
+![Demo: el último blíster, alternativas, hipótesis «¿y si Otay reporta?» y retiro de lote](capturas/00-demo.gif)
 
 ## Cómo correrlo
 
