@@ -123,6 +123,7 @@ main { max-width: 1200px; margin: 0 auto; padding: 20px; }
 .sub { color: var(--on-variant); font-size: 13px; margin: 0 0 12px; }
 .grid-sit { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 20px; align-items: start; }
 .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.grid-sit > *, .grid-2 > *, .cols > * { min-width: 0; }   /* que el contenido ancho no estire la columna en el celular */
 
 /* ---------- lista de escenarios ---------- */
 .esc-group { font: 700 11px var(--display); text-transform: uppercase; letter-spacing: .06em; color: var(--outline); margin: 16px 4px 6px; }
@@ -175,7 +176,7 @@ main { max-width: 1200px; margin: 0 auto; padding: 20px; }
 .why .t { font-size: 13px; }
 .why .tag { font: 700 10px var(--display); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; display: block; }
 .why .facts { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
-.why .facts code { background: var(--card); border: 1px solid var(--container-high); padding: 1px 6px; border-radius: 6px; color: var(--tertiary); }
+.why .facts code { overflow-wrap: anywhere; background: var(--card); border: 1px solid var(--container-high); padding: 1px 6px; border-radius: 6px; color: var(--tertiary); }
 .w-decision { border-left-color: var(--primary) !important; background: var(--bg-ok) !important; }
 .w-bloqueo { border-left-color: var(--error) !important; background: var(--bg-bad) !important; }
 .w-bloqueo .tag { color: var(--error); }
@@ -201,6 +202,7 @@ details.evid summary { cursor: pointer; color: var(--on-variant); font-weight: 6
 /* ---------- existencias / recetas ---------- */
 .lot-card { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--container-high); background: var(--card); }
 .lot-card .id { font: 700 14px var(--mono); }
+.lot-card, .res, .card { min-width: 0; overflow-wrap: anywhere; }
 .lot-card .meta { font-size: 12px; color: var(--on-variant); grid-column: 1 / -1; }
 .lot-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .bar { height: 8px; border-radius: 999px; background: var(--container-high); overflow: hidden; margin: 8px 0 4px; }
