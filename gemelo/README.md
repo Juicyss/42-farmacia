@@ -10,6 +10,8 @@ Ejercicio con datos simulados: **no es un sistema de dispensación real**.
 
 ![Demo: el último blíster, alternativas, hipótesis «¿y si Otay reporta?» y retiro de lote](capturas/00-demo.gif)
 
+🎬 Video de demostración con subtítulos (1 min 53 s): [`capturas/demo-gemelo.mp4`](capturas/demo-gemelo.mp4)
+
 ## Cómo correrlo
 
 ```bash
