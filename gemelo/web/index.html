@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="color-scheme" content="light dark">
+  <script>document.documentElement.dataset.tema = localStorage.getItem("tema42") || (matchMedia("(prefers-color-scheme: dark)").matches ? "oscuro" : "claro");</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Farmacia #42 · Gemelo digital en Prolog</title>
+  <meta name="description" content="Gemelo digital de una farmacia: Prolog decide y explica; Python dibuja.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <header class="top">
+    <div class="top-in">
+      <div class="logo" aria-hidden="true">Rx</div>
+      <div class="brand">
+        <h1>Farmacia #42 · Gemelo digital</h1>
+        <p>Prolog decide y explica · Python solo dibuja</p>
+      </div>
+      <div class="top-right" id="topPills"></div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Secciones">
+      <button class="tab" role="tab" data-view="situaciones" aria-selected="true"><span class="ico">⚖️</span>Situaciones</button>
+      <button class="tab" role="tab" data-view="existencias" aria-selected="false"><span class="ico">📦</span>Lotes</button>
+      <button class="tab" role="tab" data-view="recetas" aria-selected="false"><span class="ico">📄</span>Recetas</button>
+      <button class="tab" role="tab" data-view="retiro" aria-selected="false"><span class="ico">⛔</span>Retiro</button>
+      <button class="tab" role="tab" data-view="consultas" aria-selected="false"><span class="ico">?-</span>Consultas</button>
+    </nav>
+  </header>
+
+  <main>
+    <div id="banner"></div>
+    <section class="kpis" id="kpis" aria-label="Indicadores"></section>
+
+    <!-- Situaciones: decide/4 + que_falta/2 + hipotesis/2 -->
+    <section id="view-situaciones" class="view">
+      <div class="grid-sit">
+        <aside id="escenarios" aria-label="Escenarios"></aside>
+        <div id="decision"><div class="card empty">Elige una situación.</div></div>
+      </div>
+    </section>
+
+    <section id="view-existencias" class="view" hidden>
+      <div class="card">
+        <h2>Existencias por lote</h2>
+        <p class="sub">El estado de cada lote lo deduce <code>estado_lote/3</code>: retirado, vencido, agotado, por caducar o disponible.</p>
+        <div class="lot-grid" id="lotes"></div>
+      </div>
+      <div class="card">
+        <h2>Días para caducar</h2>
+        <p class="sub">Prolog arma las listas; matplotlib las dibuja.</p>
+        <div id="chartCad"></div>
+        <div class="how"><code class="pl">grafica_caducidades/1</code>→<code class="py">graficas.caducidades</code></div>
+      </div>
+    </section>
+
+    <section id="view-recetas" class="view" hidden>
+      <div class="card">
+        <h2>Recetas</h2>
+        <p class="sub">Lo prescrito, lo surtido en cada visita y lo que falta salen del historial (<code>evento_receta/4</code>), no de un contador.</p>
+        <div class="grid-2" id="recetas"></div>
+      </div>
+      <div class="card">
+        <h2>Surtido vs. pendiente</h2>
+        <div id="chartRec"></div>
+        <div class="how"><code class="pl">grafica_recetas/1</code>→<code class="py">graficas.recetas</code></div>
+      </div>
+    </section>
+
+    <section id="view-retiro" class="view" hidden>
+      <div id="retiro"><div class="card empty">Cargando…</div></div>
+    </section>
+
+    <section id="view-consultas" class="view" hidden>
+      <div class="card">
+        <h2>Situaciones deducidas</h2>
+        <p class="sub"><code>situacion(?Entidad, ?Situacion, -Evidencia)</code> se consulta en cualquier dirección: deja la entidad vacía para «todas», o el tipo vacío para «todo lo que se sabe de esta entidad».</p>
+        <form class="form-row" id="formSit">
+          <label>Entidad<input type="text" id="qEnt" placeholder="r103, luis, l_omep_a…"></label>
+          <label>Tipo de situación
+            <select id="qTipo">
+              <option value="">(cualquiera)</option>
+              <option>lote</option><option>receta_valida</option><option>receta_invalida</option>
+              <option>receta_dudosa</option><option>receta_usada</option><option>receta_abierta</option>
+              <option>receta_cerrada</option><option>venta_sin_rastro</option><option>riesgo_interaccion</option>
+              <option>alergia_en_receta</option><option>alergias_desconocidas</option><option>por_avisar</option>
+              <option>sucursal_sin_reporte</option>
+            </select>
+          </label>
+          <button class="btn" type="submit">Consultar</button>
+        </form>
+        <div id="sitRes" style="margin-top:14px"></div>
+      </div>
+    </section>
+  </main>
+
+  <p class="foot">Ejercicio con datos simulados, no es un sistema de dispensación real · Proyecto #42 Farmacia · Programación Lógica y Funcional, TecNM Tijuana ·
+    Hugo Iram Aguirre Dávila · Ninguna regla vive en esta página: todo sale de <code>reglas.pl</code>.</p>
+
+  <script src="app.js"></script>
+</body>
+</html>
