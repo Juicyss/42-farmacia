@@ -1,5 +1,10 @@
 # #42 — Farmacia
 
+[![gemelo](https://github.com/Juicyss/42-farmacia/actions/workflows/gemelo.yml/badge.svg)](https://github.com/Juicyss/42-farmacia/actions/workflows/gemelo.yml)
+
+> **Fase 2 (proyecto final): gemelo digital en SWI-Prolog + Python vía Janus → [`gemelo/`](gemelo/)**
+> Práctica 3.0/3.2 (Prolog Lab 69/69 y gemelo mínimo) → [`practica-3.0-prolog-lab/`](practica-3.0-prolog-lab/)
+
 **Dominio:** Salud · inventario por lote, caducidades (FEFO) y recetas.
 **Alumno:** Hugo Iram Aguirre Dávila · ISC · TecNM Tijuana · Programación Lógica y Funcional
 
@@ -115,3 +120,25 @@ p42_farmacia_sup (one_for_one)          <- duenio de las tablas ETS
 - [x] Métricas `/metrics` y diagnóstico con recon
 - [x] Release + systemd
 - [x] Prueba de caos
+
+## Extensión: gemelo digital en Prolog (fase 2)
+
+La simulación Erlang responde «¿qué hay en el estante y qué pasó con la receta?». El gemelo en
+[`gemelo/`](gemelo/) responde «¿le surto esto a esta persona, de qué lote, y por qué?», reconoce cuando
+**no se sabe** (una sucursal sin reporte, una ficha de alergias sin capturar) y contesta hipótesis
+(«¿y si retiran el lote que caduca primero?»). Todo en SWI-Prolog: hechos, reglas, explicación y servidor
+web; Python (matplotlib) solo dibuja, llamado desde Prolog con Janus.
+
+```bash
+cd gemelo
+swipl -g run_tests -t halt tests/reglas_tests.pl   # 34 pruebas plunit
+swipl servidor.pl                                   # http://localhost:8042/
+```
+
+| Erlang/OTP (fase 1) | Prolog (fase 2) |
+|---|---|
+| `p42_inventario` serializa las ventas: nunca se sobrevende el último blíster | `decide/4` decide **a quién** le toca y por qué (FEFO, límite de tratamiento, desempate) |
+| `p42_receta` (gen_statem) lleva el estado de cada receta | `condicion/4` decide si la receta es válida, usada o «no se sabe» |
+| `ets:insert_new` rechaza un folio ya usado | `uso_receta/3` distingue «no se usó» de «no sé si se usó» |
+| `/api/lotes/:lote/retirar` encuentra las ventas del lote | `retiro/2` sigue lote → venta → receta → paciente → medio de aviso |
+
