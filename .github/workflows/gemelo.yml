@@ -14,8 +14,12 @@ jobs:
       - name: SWI-Prolog (PPA estable) y matplotlib
         run: |
           sudo apt-add-repository -y ppa:swi-prolog/stable
-          sudo apt-get update
-          sudo apt-get install -y swi-prolog python3-matplotlib
+          sudo apt-get update -o Acquire::Retries=5
+          # reintentos: el servidor de la PPA a veces responde 503
+          for i in 1 2 3; do
+            sudo apt-get install -y -o Acquire::Retries=5 swi-prolog python3-matplotlib && break
+            echo "Reintento $i en 30 s"; sleep 30
+          done
           swipl --version
 
       - name: Prolog ve a Python (Janus)
