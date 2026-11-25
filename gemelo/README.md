@@ -28,8 +28,12 @@ swipl gemelo.pl                                     # consola: ?- decide_escenar
 `graficas.pl` elige el camino solo (`:- if(exists_source(library(janus)))`) y la página muestra cuál se usa
 («Python vía Janus» / «Python vía proceso»). En los dos casos **Prolog decide y Python solo dibuja**.
 En EC2 hay que abrir el puerto 8042 en el grupo de seguridad.
-Probado en esta laptop: Windows + SWI-Prolog 11.0.1 + Python 3.11 (modo proceso, 34/34 pruebas). El camino Janus
-usa exactamente la misma llamada que `logicDemo2` del curso (`py_add_lib_dir/1` + `py_call/2`).
+Probado en los dos caminos:
+- **Windows** (esta laptop): SWI-Prolog 11.0.1 + Python 3.11, modo proceso, 34/34 pruebas.
+- **Ubuntu 24.04 con Janus** en GitHub Actions ([`.github/workflows/gemelo.yml`](../.github/workflows/gemelo.yml)):
+  `py_call(sys:version, V)` responde Python 3.12.3, 34/34 pruebas, gráficas con `modo_python = janus`,
+  el gemelo mínimo de la práctica y el servidor web respondiendo
+  ([captura](capturas/12-ci-ubuntu-janus.jpg), [ejecuciones](https://github.com/Juicyss/42-farmacia/actions)).
 
 ## Arquitectura
 
