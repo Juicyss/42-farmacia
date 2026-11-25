@@ -54,7 +54,7 @@ tests/reglas_tests.pl  34 pruebas plunit (al menos una por situación y por crit
 | [`hechos.pl`](hechos.pl) | 2 sucursales, 4 mostradores, 11 medicamentos, 15 lotes, 4 pacientes, 2 médicos, 10 recetas, ventas, devoluciones, alerta sanitaria. `ahora(200)` es un hecho. |
 | [`reglas.pl`](reglas.pl) | Condiciones de tres valores, reparto de lotes por *backtracking*, costo (FEFO + desempate), explicación, «qué falta», hipótesis, retiro de lote, `situacion/3`. |
 | [`escenarios.pl`](escenarios.pl) | Las solicitudes de cada situación y 5 hipótesis «¿qué pasaría si…?». |
-| [`servidor.pl`](servidor.pl) | Rutas `/api/estado`, `/api/existencias`, `/api/recetas`, `/api/escenarios`, `/api/decide`, `/api/retiro`, `/api/situaciones` y `/grafica/*`. |
+| [`servidor.pl`](servidor.pl) | Rutas `/api/estado`, `/api/existencias`, `/api/recetas`, `/api/escenarios`, `/api/decide`, `/api/retiro`, `/api/que_falta`, `/api/situaciones` y `/grafica/*`. |
 | [`graficas.pl`](graficas.pl) · [`graficas.py`](graficas.py) | Prolog arma las listas; Python dibuja caducidades, recetas y el destino del lote retirado. |
 | [`web/`](web/) | Interfaz con el sistema de diseño de Stitch «Clinical Precision» (claro y oscuro, móvil). Ninguna regla vive aquí. |
 | [`design/`](design/) | `DESIGN.md` y pantallas exportadas de Stitch + el prompt de las pantallas del gemelo. |

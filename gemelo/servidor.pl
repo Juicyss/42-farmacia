@@ -15,6 +15,7 @@
     | /api/escenarios               | las cinco situaciones como solicitudes de mostrador      |
     | /api/decide?escenario=&hipotesis=&alternativa= | decisión + explicación + qué falta       |
     | /api/retiro?lote=             | a quién avisar, ventas sin rastro, devoluciones           |
+    | /api/que_falta?receta= o ?escenario= | «qué falta para que cambie» (la pregunta al revés)   |
     | /api/situaciones?entidad=&tipo= | situaciones deducidas en cualquier dirección           |
     | /grafica/caducidades | /grafica/recetas | /grafica/retiro?lote=  | PNG (Prolog → Python)  |
 */
@@ -42,6 +43,7 @@
 :- http_handler(root(api/escenarios),    api_escenarios,  []).
 :- http_handler(root(api/decide),        api_decide,      []).
 :- http_handler(root(api/retiro),        api_retiro,      []).
+:- http_handler(root(api/que_falta),     api_que_falta,   []).
 :- http_handler(root(api/situaciones),   api_situaciones, []).
 :- http_handler(root(grafica/caducidades), g_caducidades, []).
 :- http_handler(root(grafica/recetas),     g_recetas,     []).
@@ -239,6 +241,23 @@ retiro_json(Lote, _{lote: Lote, medicamento: NMed, dia_retiro: DR, alerta: Al,
 medio_json(telefono(T), "teléfono", T).
 medio_json(via_medico(M), "vía su médico", N) :- nombre_medico(M, N).
 medio_json(no_localizable, "no localizable", "sin contacto ni receta").
+
+% ------------------------------------------------------------ /api/que_falta
+%  ?receta=r103            → qué le falta a esa receta para poder surtirse
+%  ?escenario=s13          → qué le falta a cada solicitud del escenario
+%  (mismas condiciones que decide/4: que_falta/2 y que_falta_receta/2)
+api_que_falta(Req) :-
+    http_parameters(Req, [ receta(R, [atom, default('')]), escenario(E, [atom, default('')]) ]),
+    (   R \== '', seguro(que_falta_receta(R, F0))
+    ->  maplist(falta_json, F0, Fs),
+        reply_json_dict(_{receta: R, faltas: Fs})
+    ;   E \== '', escenario(E, _, _, _, Sols, _), is_list(Sols)
+    ->  seguro(findall(_{solicitud: Id, faltas: Fs},
+                       ( member(S, Sols), arg(1, S, Id), que_falta(S, F0), maplist(falta_json, F0, Fs) ),
+                       Js)),
+        reply_json_dict(_{escenario: E, solicitudes: Js})
+    ;   reply_json_dict(_{error: "Indica ?receta=r103 o ?escenario=s13"}, [status(400)])
+    ).
 
 % ------------------------------------------------------------ /api/situaciones
 api_situaciones(Req) :-
