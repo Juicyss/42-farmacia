@@ -1,4 +1,4 @@
-/*  escenarios.pl — Las cinco situaciones de gemelo/PROBLEMA.md como solicitudes de mostrador
+/*  escenarios.pl — Las cinco situaciones del reto como solicitudes de mostrador
 
     escenario(Id, Situacion, Titulo, Descripcion, Solicitudes, Hipotesis)
       Solicitudes: lista de sol/8  o  retiro(Lote) para la situación 4

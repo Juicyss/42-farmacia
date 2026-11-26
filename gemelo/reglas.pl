@@ -2,7 +2,7 @@
 
     Hugo Iram Aguirre Dávila · Programación Lógica y Funcional · TecNM Tijuana
 
-    Predicados centrales (contrato de gemelo/CONTEXTO_AGENTES.md):
+    Predicados centrales (contrato del reto del proyecto #42):
 
       decide(+Solicitudes, -Decision, -Explicacion)
           Reparto completo para una LISTA de solicitudes de mostrador. Al pedir más

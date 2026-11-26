@@ -2,7 +2,7 @@
 
 **Hugo Iram Aguirre Dávila** · ISC · TecNM Tijuana · Programación Lógica y Funcional (26b, 4A)
 Proyecto final 3.3: *«En Prolog con Python/Janus elabore la EXTENSIÓN de su proyecto original»*.
-El reto está en [`PROBLEMA.md`](PROBLEMA.md); el contexto y el contrato, en [`CONTEXTO_AGENTES.md`](CONTEXTO_AGENTES.md).
+Enunciado del reto (repositorio del curso): [`PROBLEMA.md`](https://github.com/tectijuana/logicfun-proyectos/blob/main/proyectos/42-farmacia/gemelo/PROBLEMA.md); contrato y criterios de aceptación: [`CONTEXTO_AGENTES.md`](https://github.com/tectijuana/logicfun-proyectos/blob/main/proyectos/42-farmacia/gemelo/CONTEXTO_AGENTES.md).
 Ejercicio con datos simulados: **no es un sistema de dispensación real**.
 
 > En Erlang la farmacia **hace** cosas: procesos que no sobrevenden el último blíster y se recuperan si mueren.
@@ -95,7 +95,7 @@ sucursal sin reporte, cliente anónimo) nunca cuenta como «no». Qué incertidu
 | 5 | `s52` Luis pide ibuprofeno (venta libre) | **Rechazar**: recibió warfarina en Otay hace 6 días. | |
 | 5 | `s53` Pedro, ficha de alergias nunca capturada | **Suspender**: «no se sabe», nunca «sin alergias». Hipótesis: ficha sin alergias → surtir; con alergia → rechazar. | |
 
-### Criterios de aceptación de `CONTEXTO_AGENTES.md`
+### Criterios de aceptación del reto
 
 | Criterio | Prueba plunit que lo demuestra |
 |---|---|
@@ -168,7 +168,7 @@ Un `if caducidad < hoy: rechazar()` resuelve un lote con datos perfectos. Aquí 
   Esto resuelve el dilema de la situación 2: sellar y devolver, retener al completar.
 - **Clasificación por requisito de venta.** Ley General de Salud, art. 226 (seis fracciones; I a III son
   controlados: estupefacientes y psicotrópicos). [mley.mx/LGS/articulo/226](https://mley.mx/LGS/articulo/226/).
-  El modelo lo reduce a `libre | receta | controlado`, como pide `CONTEXTO_AGENTES.md`.
+  El modelo lo reduce a `libre | receta | controlado`, como pide el contrato del reto.
 - **Interacción benzodiacepina + opioide** (clonazepam + tramadol): advertencia de recuadro de la FDA, 31/08/2016.
   [FDA Drug Safety Communication](https://www.fda.gov/drugs/drug-safety-and-availability/fda-drug-safety-communication-fda-warns-about-serious-risks-and-death-when-combining-opioid-pain-or).
 - **Warfarina + AINE / ácido acetilsalicílico** (riesgo de sangrado): [MedlinePlus — Warfarin](https://medlineplus.gov/druginfo/meds/a682277.html).
