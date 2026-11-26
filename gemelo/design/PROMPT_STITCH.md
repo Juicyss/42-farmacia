@@ -4,7 +4,7 @@ La interfaz del gemelo reutiliza el sistema de diseño **«Clinical Precision»*
 fase de Erlang ([`DESIGN.md`](DESIGN.md) y las pantallas `stitch_*.png` de esta carpeta): verde azulado clínico,
 tarjetas blancas de 16 px de radio, chips de estado (OK / caduca pronto / caducado / retirado), Plus Jakarta Sans +
 Inter, y navegación inferior en el celular. Sobre ese mismo sistema, este es el prompt de Stitch para las
-pantallas del gemelo (pegarlo en <https://stitch.withgoogle.com> y guardar aquí el zip exportado):
+pantallas del gemelo en <https://stitch.withgoogle.com>:
 
 ```text
 Using the existing "Clinical Precision" design system (teal #005445 primary, white 16px-radius
